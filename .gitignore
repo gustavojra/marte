@@ -1,0 +1,9 @@
+*.pyc
+timer.dat
+output.dat
+__pycache__
+*.clean
+Makefile
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
