@@ -81,16 +81,19 @@ SharedWavefunction marte(SharedWavefunction ref_wfn, Options& options)
 
 // Get integrals
 
-    // Not pointers for now ??
+    // Not pointers for now ?? wait, is this a pointer???
     MintsHelper mints = MintsHelper(ref_wfn->basisset());
     SharedMatrix psi4TEI = mints.mo_eri(C, C, C, C);
 
 // Build ambit tensors
 
-    std::vector<int> occ_space(ndocc), vir_space(nvir);
+    std::vector<size_t> occ_space(ndocc), vir_space(nvir);
 
     for(int i = 0; i < ndocc; i++) {
         occ_space[i] = i;
+    }
+    for(int i = ndocc; i < nvir; i++) {
+        vir_space[i] = i;
     }
 
 //    gprint(occ_space);
@@ -103,13 +106,27 @@ SharedWavefunction marte(SharedWavefunction ref_wfn, Options& options)
 
 //    gprint(occ_space);
 
-    ambit::SpinType spin_free = ambit::SpinType::NoSpin;
     ambit::initialize();
-    ambit::BlockedTensor::add_mo_space("o","i,j,k,l",{0,1,2,3,4},spin_free);
-    ambit::BlockedTensor::add_mo_space("v","a,b,c,d",{5,6,7,8,9},spin_free);
+    ambit::BlockedTensor::add_mo_space("o","i,j,k,l",occ_space,ambit::SpinType::NoSpin);
+    ambit::BlockedTensor::add_mo_space("v","a,b,c,d",vir_space,ambit::SpinType::NoSpin);
     ambit::BlockedTensor::add_composite_mo_space("g","p,q,r,s,t",{"o","v"});
-//    ambit::Tensor TEI = ambit::Tensor::build(ambit::CoreTensor, "TEI", {100,100});
-//    ambit::helpers::psi4::convert(psi4TEI, TEI);
+
+    ambit::BlockedTensor T1 = ambit::BlockedTensor::build(ambit::TensorType::CoreTensor, "T1", {"ov"});
+    ambit::BlockedTensor T2 = ambit::BlockedTensor::build(ambit::TensorType::CoreTensor, "T2", {"oovv"});
+
+    ambit::BlockedTensor N = ambit::BlockedTensor::build(ambit::TensorType::CoreTensor, "N", {"ov"});
+
+    T1.set(2.0);
+    T2.set(3.0);
+
+    std::cout << &N << std::endl;
+    N.print();
+
+    N["jb"] = T1["ia"]*T2["ijab"];
+    std::cout << &N << std::endl;
+    N.print();
+
+    psi4TEI->print();
 
     return ref_wfn;
 }

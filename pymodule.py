@@ -40,9 +40,6 @@ def run_marte(name, **kwargs):
 
     """
 
-    # Doesnt work...
-    psi4.core.print_out('MARTE STARTED')
-
     lowername = name.lower()
     kwargs = p4util.kwargs_lower(kwargs)
 
@@ -61,6 +58,7 @@ def run_marte(name, **kwargs):
 
     # Call the Psi4 plugin
     # Please note that setting the reference wavefunction in this way is ONLY for plugins
+    psi4.core.print_out('MARTE STARTED')
     marte_wfn = psi4.core.plugin('marte.so', ref_wfn)
 
     return marte_wfn

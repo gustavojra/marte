@@ -1,0 +1,362 @@
+
+    -----------------------------------------------------------------------
+          Psi4: An Open-Source Ab Initio Electronic Structure Package
+                               Psi4 1.3.2 release
+
+                         Git: Rev {HEAD} ecbda83 
+
+
+    R. M. Parrish, L. A. Burns, D. G. A. Smith, A. C. Simmonett,
+    A. E. DePrince III, E. G. Hohenstein, U. Bozkaya, A. Yu. Sokolov,
+    R. Di Remigio, R. M. Richard, J. F. Gonthier, A. M. James,
+    H. R. McAlexander, A. Kumar, M. Saitow, X. Wang, B. P. Pritchard,
+    P. Verma, H. F. Schaefer III, K. Patkowski, R. A. King, E. F. Valeev,
+    F. A. Evangelista, J. M. Turney, T. D. Crawford, and C. D. Sherrill,
+    J. Chem. Theory Comput. 13(7) pp 3185--3197 (2017).
+    (doi: 10.1021/acs.jctc.7b00174)
+
+
+                         Additional Contributions by
+    P. Kraus, H. Kruse, M. H. Lechner, M. C. Schieber, R. A. Shaw,
+    A. Alenaizan, R. Galvelis, Z. L. Glick, S. Lehtola, and J. P. Misiewicz
+
+    -----------------------------------------------------------------------
+
+
+    Psi4 started on: Wednesday, 18 December 2019 02:19AM
+
+    Process ID: 17761
+    Host:       BabyShark
+    PSIDATADIR: /home/aroeira/psi4conda/share/psi4
+    Memory:     500.0 MiB
+    Threads:    1
+    
+  ==> Input File <==
+
+--------------------------------------------------------------------------
+
+# PYTHONPATH must include directory above plugin directory.
+#     Define either externally or here, then import plugin.
+sys.path.insert(0, './..')
+import marte
+
+molecule {
+O
+H 1 R
+H 1 R 2 A
+
+R = .9
+A = 104.5
+}
+
+set {
+  basis sto-3g
+}
+
+set marte {
+  print 1
+}
+
+energy('marte')
+
+marte.exampleFN()
+--------------------------------------------------------------------------
+
+*** tstart() called on BabyShark
+*** at Wed Dec 18 02:19:52 2019
+
+   => Loading Basis Set <=
+
+    Name: STO-3G
+    Role: ORBITAL
+    Keyword: BASIS
+    atoms 1   entry O          line    81 file /home/aroeira/psi4conda/share/psi4/basis/sto-3g.gbs 
+    atoms 2-3 entry H          line    19 file /home/aroeira/psi4conda/share/psi4/basis/sto-3g.gbs 
+
+
+         ---------------------------------------------------------
+                                   SCF
+               by Justin Turney, Rob Parrish, Andy Simmonett
+                          and Daniel G. A. Smith
+                              RHF Reference
+                        1 Threads,    500 MiB Core
+         ---------------------------------------------------------
+
+  ==> Geometry <==
+
+    Molecular point group: c2v
+    Full point group: C2v
+
+    Geometry (in Angstrom), charge = 0, multiplicity = 1:
+
+       Center              X                  Y                   Z               Mass       
+    ------------   -----------------  -----------------  -----------------  -----------------
+         O            0.000000000000     0.000000000000    -0.061664597388    15.994914619570
+         H            0.000000000000    -0.711620616369     0.489330954643     1.007825032230
+         H            0.000000000000     0.711620616369     0.489330954643     1.007825032230
+
+  Running in c2v symmetry.
+
+  Rotational constants: A =     31.01920  B =     16.51522  C =     10.77722 [cm^-1]
+  Rotational constants: A = 929932.18703  B = 495113.78650  C = 323092.90708 [MHz]
+  Nuclear repulsion =    9.779406182852640
+
+  Charge       = 0
+  Multiplicity = 1
+  Electrons    = 10
+  Nalpha       = 5
+  Nbeta        = 5
+
+  ==> Algorithm <==
+
+  SCF Algorithm Type is PK.
+  DIIS enabled.
+  MOM disabled.
+  Fractional occupation disabled.
+  Guess Type is SAD.
+  Energy threshold   = 1.00e-08
+  Density threshold  = 1.00e-08
+  Integral threshold = 0.00e+00
+
+  ==> Primary Basis <==
+
+  Basis Set: STO-3G
+    Blend: STO-3G
+    Number of shells: 5
+    Number of basis function: 7
+    Number of Cartesian functions: 7
+    Spherical Harmonics?: true
+    Max angular momentum: 1
+
+  ==> Pre-Iterations <==
+
+   -------------------------------------------------------
+    Irrep   Nso     Nmo     Nalpha   Nbeta   Ndocc  Nsocc
+   -------------------------------------------------------
+     A1         4       4       0       0       0       0
+     A2         0       0       0       0       0       0
+     B1         1       1       0       0       0       0
+     B2         2       2       0       0       0       0
+   -------------------------------------------------------
+    Total       7       7       5       5       5       0
+   -------------------------------------------------------
+
+  ==> Integral Setup <==
+
+  Using in-core PK algorithm.
+   Calculation information:
+      Number of atoms:                   3
+      Number of AO shells:               5
+      Number of primitives:             15
+      Number of atomic orbitals:         7
+      Number of basis functions:         7
+
+      Integral cutoff                 1.00e-12
+      Number of threads:                 1
+
+  Performing in-core PK
+  Using 812 doubles for integral storage.
+  We computed 120 shell quartets total.
+  Whereas there are 120 unique shell quartets.
+
+  ==> DiskJK: Disk-Based J/K Matrices <==
+
+    J tasked:                  Yes
+    K tasked:                  Yes
+    wK tasked:                  No
+    Memory [MiB]:              375
+    Schwarz Cutoff:          1E-12
+
+    OpenMP threads:              1
+
+  Minimum eigenvalue in the overlap matrix is 3.0451396789E-01.
+  Using Symmetric Orthogonalization.
+
+  SCF Guess: Superposition of Atomic Densities via on-the-fly atomic UHF.
+
+  ==> Iterations <==
+
+                        Total Energy        Delta E     RMS |[F,P]|
+
+   @RHF iter SAD:   -74.37017753290787   -7.43702e+01   0.00000e+00 
+   @RHF iter   1:   -74.90239585121186   -5.32218e-01   5.17506e-02 DIIS
+   @RHF iter   2:   -74.94424188501533   -4.18460e-02   7.39039e-03 DIIS
+   @RHF iter   3:   -74.94496693529970   -7.25050e-04   1.74713e-03 DIIS
+   @RHF iter   4:   -74.94502020635456   -5.32711e-05   1.65141e-04 DIIS
+   @RHF iter   5:   -74.94502100708441   -8.00730e-07   8.05503e-06 DIIS
+   @RHF iter   6:   -74.94502100875901   -1.67461e-09   5.85627e-07 DIIS
+   @RHF iter   7:   -74.94502100876632   -7.30438e-12   2.25815e-09 DIIS
+  Energy and wave function converged.
+
+
+  ==> Post-Iterations <==
+
+    Orbital Energies [Eh]
+    ---------------------
+
+    Doubly Occupied:                                                      
+
+       1A1   -20.236192     2A1    -1.300480     1B2    -0.649309  
+       3A1    -0.460194     1B1    -0.396298  
+
+    Virtual:                                                              
+
+       4A1     0.664827     2B2     0.813314  
+
+    Final Occupation by Irrep:
+             A1    A2    B1    B2 
+    DOCC [     3,    0,    1,    1 ]
+
+  @RHF Final Energy:   -74.94502100876632
+
+   => Energetics <=
+
+    Nuclear Repulsion Energy =              9.7794061828526395
+    One-Electron Energy =                -123.3639077899158849
+    Two-Electron Energy =                  38.6394805982969274
+    Total Energy =                        -74.9450210087663180
+
+Computation Completed
+
+
+Properties will be evaluated at   0.000000,   0.000000,   0.000000 [a0]
+
+Properties computed using the SCF density matrix
+
+  Nuclear Dipole Moment: [e a0]
+     X:     0.0000      Y:     0.0000      Z:     0.9172
+
+  Electronic Dipole Moment: [e a0]
+     X:     0.0000      Y:     0.0000      Z:    -0.2095
+
+  Dipole Moment: [e a0]
+     X:     0.0000      Y:     0.0000      Z:     0.7076     Total:     0.7076
+
+  Dipole Moment: [D]
+     X:     0.0000      Y:     0.0000      Z:     1.7986     Total:     1.7986
+
+
+*** tstop() called on BabyShark at Wed Dec 18 02:19:52 2019
+Module time:
+	user time   =       0.47 seconds =       0.01 minutes
+	system time =       0.00 seconds =       0.00 minutes
+	total time  =          0 seconds =       0.00 minutes
+Total time:
+	user time   =       0.47 seconds =       0.01 minutes
+	system time =       0.00 seconds =       0.00 minutes
+	total time  =          0 seconds =       0.00 minutes
+ MINTS: Wrapper to libmints.
+   by Justin Turney
+
+   Calculation information:
+      Number of threads:                 1
+      Number of atoms:                   3
+      Number of AO shells:               5
+      Number of SO shells:               4
+      Number of primitives:             15
+      Number of atomic orbitals:         7
+      Number of basis functions:         7
+
+      Number of irreps:                  4
+      Integral cutoff                 0.00e+00
+      Number of functions per irrep: [   4    0    1    2 ]
+
+ OEINTS: Overlap, kinetic, potential, dipole, and quadrupole integrals
+         stored in file 35.
+
+      Computing two-electron integrals...done
+      Computed 138 non-zero two-electron integrals.
+        Stored in file 33.
+
+MARTE STARTED
+Reading options from the MARTE block
+Calling plugin marte.so.
+
+
+Running g-CCSD
+  ## MO ERI Tensor (Symmetry 0) ##
+  Irrep: 1 Size: 16 x 16
+
+                 1                   2                   3                   4                   5
+
+    1     4.75464950533508     0.47695785823258     0.08006651392575    -0.11053773462824     0.47695785823258
+    2     0.47695785823258     0.06720862044460     0.01455892377676     0.00771590731554     0.06720862044460
+    3     0.08006651392575     0.01455892377676     0.02930266446206     0.00950582252178     0.01455892377676
+    4    -0.11053773462824     0.00771590731554     0.00950582252178     0.08512038037295     0.00771590731554
+    5     0.47695785823258     0.06720862044460     0.01455892377676     0.00771590731554     0.06720862044460
+    6     0.80042169136670     0.02558677894866    -0.00931254108923    -0.07678752263027     0.02558677894866
+    7     0.23722233801359     0.01285422181471    -0.02377148157047    -0.01801220742879     0.01285422181471
+    8     0.62690390839907     0.01878017435229    -0.00799669821033    -0.12606170217712     0.01878017435229
+    9     0.08006651392575     0.01455892377676     0.02930266446206     0.00950582252178     0.01455892377676
+   10     0.23722233801359     0.01285422181471    -0.02377148157047    -0.01801220742879     0.01285422181471
+   11     1.15028873904486     0.04232245730854    -0.06747276891581    -0.12795975425165     0.04232245730854
+   12     0.36972502129831     0.02041999303851    -0.03908174510052    -0.08063280429216     0.02041999303851
+   13    -0.11053773462824     0.00771590731554     0.00950582252178     0.08512038037295     0.00771590731554
+   14     0.62690390839907     0.01878017435229    -0.00799669821033    -0.12606170217712     0.01878017435229
+   15     0.36972502129831     0.02041999303851    -0.03908174510052    -0.08063280429216     0.02041999303851
+   16     3.20243377851926     0.10057824009471    -0.09203148191060    -0.53895857514869     0.10057824009471
+
+                 6                   7                   8                   9                  10
+
+    1     0.80042169136670     0.23722233801359     0.62690390839907     0.08006651392575     0.23722233801359
+    2     0.02558677894866     0.01285422181471     0.01878017435229     0.01455892377676     0.01285422181471
+    3    -0.00931254108923    -0.02377148157047    -0.00799669821033     0.02930266446206    -0.02377148157047
+    4    -0.07678752263027    -0.01801220742879    -0.12606170217712     0.00950582252178    -0.01801220742879
+    5     0.02558677894866     0.01285422181471     0.01878017435229     0.01455892377676     0.01285422181471
+    6     0.42391422479562     0.08935808421348     0.31593855274267    -0.00931254108923     0.08935808421348
+    7     0.08935808421348     0.09586309256478     0.05431244717869    -0.02377148157047     0.09586309256478
+    8     0.31593855274267     0.05431244717869     0.46783292006112    -0.00799669821033     0.05431244717869
+    9    -0.00931254108923    -0.02377148157047    -0.00799669821033     0.02930266446206    -0.02377148157047
+   10     0.08935808421348     0.09586309256478     0.05431244717869    -0.02377148157047     0.09586309256478
+   11     0.52847268611856     0.26302784597931     0.44089163029562    -0.06747276891581     0.26302784597931
+   12     0.12409761037890     0.11841246419799     0.22466173063654    -0.03908174510052     0.11841246419799
+   13    -0.07678752263027    -0.01801220742879    -0.12606170217712     0.00950582252178    -0.01801220742879
+   14     0.31593855274267     0.05431244717869     0.46783292006112    -0.00799669821033     0.05431244717869
+   15     0.12409761037890     0.11841246419799     0.22466173063654    -0.03908174510052     0.11841246419799
+   16     1.55072994060944     0.45197059845654     1.83927102716894    -0.09203148191060     0.45197059845654
+
+                11                  12                  13                  14                  15
+
+    1     1.15028873904487     0.36972502129831    -0.11053773462824     0.62690390839907     0.36972502129831
+    2     0.04232245730854     0.02041999303851     0.00771590731554     0.01878017435229     0.02041999303851
+    3    -0.06747276891581    -0.03908174510052     0.00950582252178    -0.00799669821033    -0.03908174510052
+    4    -0.12795975425165    -0.08063280429216     0.08512038037295    -0.12606170217712    -0.08063280429216
+    5     0.04232245730854     0.02041999303851     0.00771590731554     0.01878017435229     0.02041999303851
+    6     0.52847268611856     0.12409761037890    -0.07678752263027     0.31593855274267     0.12409761037890
+    7     0.26302784597931     0.11841246419799    -0.01801220742879     0.05431244717869     0.11841246419799
+    8     0.44089163029562     0.22466173063654    -0.12606170217712     0.46783292006112     0.22466173063654
+    9    -0.06747276891581    -0.03908174510052     0.00950582252178    -0.00799669821033    -0.03908174510052
+   10     0.26302784597931     0.11841246419799    -0.01801220742879     0.05431244717869     0.11841246419799
+   11     1.06800558022930     0.41128081558788    -0.12795975425165     0.44089163029562     0.41128081558788
+   12     0.41128081558788     0.36844014327570    -0.08063280429216     0.22466173063654     0.36844014327570
+   13    -0.12795975425165    -0.08063280429216     0.08512038037295    -0.12606170217712    -0.08063280429216
+   14     0.44089163029562     0.22466173063654    -0.12606170217712     0.46783292006112     0.22466173063654
+   15     0.41128081558788     0.36844014327570    -0.08063280429216     0.22466173063654     0.36844014327570
+   16     2.35350845965687     1.12006760716882    -0.53895857514869     1.83927102716894     1.12006760716882
+
+                16
+
+    1     3.20243377851926
+    2     0.10057824009471
+    3    -0.09203148191060
+    4    -0.53895857514869
+    5     0.10057824009471
+    6     1.55072994060944
+    7     0.45197059845654
+    8     1.83927102716894
+    9    -0.09203148191060
+   10     0.45197059845654
+   11     2.35350845965687
+   12     1.12006760716882
+   13    -0.53895857514869
+   14     1.83927102716894
+   15     1.12006760716882
+   16     8.45052626841349
+
+
+
+
+    Psi4 stopped on: Wednesday, 18 December 2019 02:19AM
+    Psi4 wall time for execution: 0:00:00.54
+
+*** Psi4 exiting successfully. Buy a developer a beer!
