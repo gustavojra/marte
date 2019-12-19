@@ -29,6 +29,7 @@
  */
 
 #include "aux.h"
+#include "helper_ccsd.h"
 #include "psi4/psi4-dec.h"
 #include "psi4/psifiles.h"
 #include "psi4/libdpd/dpd.h"
@@ -43,6 +44,7 @@
 #include "ambit/tensor.h"
 #include "ambit/blocked_tensor.h"
 #include "ambit/helpers/psi4/convert.h"
+#include <vector>
 
 namespace psi{ namespace marte{
  
@@ -206,44 +208,13 @@ SharedWavefunction marte(SharedWavefunction ref_wfn, Options& options)
 // MP2 guess for T2
 
     T2("ijab") = Vovov("iajb")*D2("ijab");
-    double Ecc;
-    Ecc = Vovov("iajb")*(2.0 * T2("ijab") - T2("jiab"));
+    double Ecc = cc_energy(T1, T2, Vovov);
 
     std::cout << "CC MP2 Energy: " << Ecc << std::endl;
+    std::vector<size_t> v = T2.dims();
+    std::cout << v[0] << std::endl;
 
-//    std::vector<size_t> occ_space(ndocc), vir_space(nvir);
-//    for(int i = 0; i < ndocc; i++) {
-//        occ_space[i] = i;
-//    }
-//    for(int i = ndocc; i < nvir; i++) {
-//        vir_space[i] = i;
-//    }
-//    ambit::BlockedTensor::add_mo_space("o","i,j,k,l",occ_space,ambit::SpinType::NoSpin);
-//    ambit::BlockedTensor::add_mo_space("v","a,b,c,d",vir_space,ambit::SpinType::NoSpin);
-//    ambit::BlockedTensor::add_composite_mo_space("g","p,q,r,s,t",{"o","v"});
-//
-//    ambit::BlockedTensor T1 = ambit::BlockedTensor::build(ambit::TensorType::CoreTensor, "T1", {"ov"});
-//    ambit::BlockedTensor T2 = ambit::BlockedTensor::build(ambit::TensorType::CoreTensor, "T2", {"oovv"});
-//    ambit::BlockedTensor V  = ambit::BlockedTensor::build(ambit::TensorType::CoreTensor,"Two-electron Repulsion Integral",{"gggg"}); 
-//
-//    V.iterate([](const std::vector<size_t>& indices,const std::vector<ambit::SpinType>& s_indices,double& value){
-//        std::cout << indices[0] << indices[1] << indices[2] << indices[3] << std::endl;
-//        value = double(std::rand())/double(RAND_MAX);
-//    });
-//    V.print();
-
-
-    //for(int p = 0; p < nmo; p++) {
-    //    for(int q = 0; q < nmo; q++) {
-    //        for(int r = 0; r < nmo; r++) {
-    //            for(int s = 0; s < nmo; s++) {
-    //                int x = nmo*p + q; 
-    //                int y = nmo*r + s;
-    //                std::cout << psi4TEI->get(x,y) << std::endl;
-    //            }
-    //        }
-    //    }
-    //}
+    
 
     ambit::finalize();
     return ref_wfn;
