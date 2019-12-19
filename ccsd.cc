@@ -247,6 +247,7 @@ SharedWavefunction marte(SharedWavefunction ref_wfn, Options& options)
 
     ambit::finalize();
     return ref_wfn;
+
 }
 
 }} // End Namespaces
