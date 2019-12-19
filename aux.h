@@ -1,5 +1,4 @@
 #include <iostream>
 #include <vector>
-using namespace std;
 
-void gprint(vector<int> &v);
+void gprint(std::vector<size_t> &v);

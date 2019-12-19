@@ -28,7 +28,7 @@
  * @END LICENSE
  */
 
-//#include "aux.h"
+#include "aux.h"
 #include "psi4/psi4-dec.h"
 #include "psi4/psifiles.h"
 #include "psi4/libdpd/dpd.h"
@@ -42,6 +42,7 @@
 #include "psi4/libmints/mintshelper.h"
 #include "ambit/tensor.h"
 #include "ambit/blocked_tensor.h"
+#include "ambit/helpers/psi4/convert.h"
 
 namespace psi{ namespace marte{
  
@@ -78,56 +79,173 @@ SharedWavefunction marte(SharedWavefunction ref_wfn, Options& options)
     int ndocc = nelec/2;
     int nvir = nmo - ndocc;
     SharedMatrix C = ref_wfn->Ca();
+    SharedVector epsilon = ref_wfn->epsilon_a();
 
 // Get integrals
 
-    // Not pointers for now ?? wait, is this a pointer???
     MintsHelper mints = MintsHelper(ref_wfn->basisset());
     SharedMatrix psi4TEI = mints.mo_eri(C, C, C, C);
 
-// Build ambit tensors
+// Build the six MO space cases for the Two-electron repulsion integral
 
-    std::vector<size_t> occ_space(ndocc), vir_space(nvir);
-
-    for(int i = 0; i < ndocc; i++) {
-        occ_space[i] = i;
-    }
-    for(int i = ndocc; i < nvir; i++) {
-        vir_space[i] = i;
-    }
-
-//    gprint(occ_space);
-
-//    std::cout << "[ ";
-//    for(int i = 0; i < occ_space.size(); i++) {
-//        std::cout << occ_space[i] << " ";
-//    }
-//    std::cout << "]" << std::endl;
-
-//    gprint(occ_space);
+    size_t s_o = (size_t) ndocc;
+    size_t s_v = (size_t) nvir;
 
     ambit::initialize();
-    ambit::BlockedTensor::add_mo_space("o","i,j,k,l",occ_space,ambit::SpinType::NoSpin);
-    ambit::BlockedTensor::add_mo_space("v","a,b,c,d",vir_space,ambit::SpinType::NoSpin);
-    ambit::BlockedTensor::add_composite_mo_space("g","p,q,r,s,t",{"o","v"});
 
-    ambit::BlockedTensor T1 = ambit::BlockedTensor::build(ambit::TensorType::CoreTensor, "T1", {"ov"});
-    ambit::BlockedTensor T2 = ambit::BlockedTensor::build(ambit::TensorType::CoreTensor, "T2", {"oovv"});
+    // => Case 1: V(o,o,o,o)
+    ambit::Tensor Voooo = ambit::Tensor::build(ambit::TensorType::CoreTensor, "Two-electron Repulsion integral. MO space (o,o,o,o)", {s_o, s_o, s_o, s_o});
+    Voooo.iterate([psi4TEI, nmo](const std::vector<size_t>& indices,double& value){
+        // General MO indices
+        size_t p = indices[0];
+        size_t q = indices[1];
+        size_t r = indices[2];
+        size_t s = indices[3];
 
-    ambit::BlockedTensor N = ambit::BlockedTensor::build(ambit::TensorType::CoreTensor, "N", {"ov"});
+        // Compound indices used in the Psi4 Matrix object
+        size_t x = p*nmo + q;
+        size_t y = r*nmo + s;
+        value = psi4TEI->get(x,y);
+    });
 
-    T1.set(2.0);
-    T2.set(3.0);
+    // => Case 2: V(v,v,v,v)
+    ambit::Tensor Vvvvv = ambit::Tensor::build(ambit::TensorType::CoreTensor, "Two-electron Repulsion integral. MO space (v,v,v,v)", {s_v, s_v, s_v, s_v});
+    Vvvvv.iterate([psi4TEI, nmo, ndocc](const std::vector<size_t>& indices,double& value){
+        // General MO indices. Virtuals need to be shifted by ndocc
+        size_t p = indices[0] + ndocc;
+        size_t q = indices[1] + ndocc;
+        size_t r = indices[2] + ndocc;
+        size_t s = indices[3] + ndocc;
 
-    std::cout << &N << std::endl;
-    N.print();
+        // Compound indices used in the Psi4 Matrix object
+        size_t x = p*nmo + q;
+        size_t y = r*nmo + s;
+        value = psi4TEI->get(x,y);
+    });
 
-    N["jb"] = T1["ia"]*T2["ijab"];
-    std::cout << &N << std::endl;
-    N.print();
+    // => Case 3: V(o,o,o,v)
+    ambit::Tensor Vooov = ambit::Tensor::build(ambit::TensorType::CoreTensor, "Two-electron Repulsion integral. MO space (o,o,o,v)", {s_o, s_o, s_o, s_v});
+    Vooov.iterate([psi4TEI, nmo, ndocc](const std::vector<size_t>& indices,double& value){
+        // General MO indices. Virtuals need to be shifted by ndocc
+        size_t p = indices[0];
+        size_t q = indices[1];
+        size_t r = indices[2];
+        size_t s = indices[3] + ndocc;
 
-    psi4TEI->print();
+        // Compound indices used in the Psi4 Matrix object
+        size_t x = p*nmo + q;
+        size_t y = r*nmo + s;
+        value = psi4TEI->get(x,y);
+    });
 
+    // => Case 4: V(o,o,v,v)
+    ambit::Tensor Voovv = ambit::Tensor::build(ambit::TensorType::CoreTensor, "Two-electron Repulsion integral. MO space (o,o,v,v)", {s_o, s_o, s_v, s_v});
+    Voovv.iterate([psi4TEI, nmo, ndocc](const std::vector<size_t>& indices,double& value){
+        // General MO indices. Virtuals need to be shifted by ndocc
+        size_t p = indices[0];
+        size_t q = indices[1];
+        size_t r = indices[2] + ndocc;
+        size_t s = indices[3] + ndocc;
+
+        // Compound indices used in the Psi4 Matrix object
+        size_t x = p*nmo + q;
+        size_t y = r*nmo + s;
+        value = psi4TEI->get(x,y);
+    });
+
+    // => Case 5: V(o,v,o,v)
+    ambit::Tensor Vovov = ambit::Tensor::build(ambit::TensorType::CoreTensor, "Two-electron Repulsion integral. MO space (o,v,o,v)", {s_o, s_v, s_o, s_v});
+    Vovov.iterate([psi4TEI, nmo, ndocc](const std::vector<size_t>& indices,double& value){
+        // General MO indices. Virtuals need to be shifted by ndocc
+        size_t p = indices[0];
+        size_t q = indices[1] + ndocc;
+        size_t r = indices[2];
+        size_t s = indices[3] + ndocc;
+
+        // Compound indices used in the Psi4 Matrix object
+        size_t x = p*nmo + q;
+        size_t y = r*nmo + s;
+        value = psi4TEI->get(x,y);
+    });
+
+    // => Case 6: V(o,v,v,v)
+    ambit::Tensor Vovvv = ambit::Tensor::build(ambit::TensorType::CoreTensor, "Two-electron Repulsion integral. MO space (o,v,v,v)", {s_o, s_v, s_v, s_v});
+    Vovvv.iterate([psi4TEI, nmo, ndocc](const std::vector<size_t>& indices,double& value){
+        // General MO indices. Virtuals need to be shifted by ndocc
+        size_t p = indices[0];
+        size_t q = indices[1] + ndocc;
+        size_t r = indices[2] + ndocc;
+        size_t s = indices[3] + ndocc;
+
+        // Compound indices used in the Psi4 Matrix object
+        size_t x = p*nmo + q;
+        size_t y = r*nmo + s;
+        value = psi4TEI->get(x,y);
+    });
+
+    ambit::Tensor T1 = ambit::Tensor::build(ambit::TensorType::CoreTensor, "T1 amplitudes", {s_o, s_v});
+    ambit::Tensor D1 = ambit::Tensor::build(ambit::TensorType::CoreTensor, "Inverse D1 auxiliar", {s_o, s_v});
+
+    D1.iterate([epsilon, ndocc, nvir](const std::vector<size_t>& indices,double& value){
+        size_t i = indices[0];
+        size_t a = indices[1] + ndocc;
+        value = 1.0/((*epsilon)[a] - (*epsilon)[i]);
+    });
+
+    ambit::Tensor T2 = ambit::Tensor::build(ambit::TensorType::CoreTensor, "T2 amplitudes", {s_o, s_o, s_v, s_v});
+    ambit::Tensor D2 = ambit::Tensor::build(ambit::TensorType::CoreTensor, "Inverse D2 auxiliar", {s_o, s_o, s_v, s_v});
+
+    D2.iterate([epsilon, ndocc, nvir](const std::vector<size_t>& indices,double& value){
+        size_t i = indices[0];
+        size_t j = indices[1];
+        size_t a = indices[2] + ndocc;
+        size_t b = indices[3] + ndocc;
+        value = 1.0/((*epsilon)[i] + (*epsilon)[j] - (*epsilon)[a] - (*epsilon)[b]);
+    });
+
+// MP2 guess for T2
+
+    T2("ijab") = Vovov("iajb")*D2("ijab");
+    double Ecc;
+    Ecc = Vovov("iajb")*(2.0 * T2("ijab") - T2("jiab"));
+
+    std::cout << "CC MP2 Energy: " << Ecc << std::endl;
+
+//    std::vector<size_t> occ_space(ndocc), vir_space(nvir);
+//    for(int i = 0; i < ndocc; i++) {
+//        occ_space[i] = i;
+//    }
+//    for(int i = ndocc; i < nvir; i++) {
+//        vir_space[i] = i;
+//    }
+//    ambit::BlockedTensor::add_mo_space("o","i,j,k,l",occ_space,ambit::SpinType::NoSpin);
+//    ambit::BlockedTensor::add_mo_space("v","a,b,c,d",vir_space,ambit::SpinType::NoSpin);
+//    ambit::BlockedTensor::add_composite_mo_space("g","p,q,r,s,t",{"o","v"});
+//
+//    ambit::BlockedTensor T1 = ambit::BlockedTensor::build(ambit::TensorType::CoreTensor, "T1", {"ov"});
+//    ambit::BlockedTensor T2 = ambit::BlockedTensor::build(ambit::TensorType::CoreTensor, "T2", {"oovv"});
+//    ambit::BlockedTensor V  = ambit::BlockedTensor::build(ambit::TensorType::CoreTensor,"Two-electron Repulsion Integral",{"gggg"}); 
+//
+//    V.iterate([](const std::vector<size_t>& indices,const std::vector<ambit::SpinType>& s_indices,double& value){
+//        std::cout << indices[0] << indices[1] << indices[2] << indices[3] << std::endl;
+//        value = double(std::rand())/double(RAND_MAX);
+//    });
+//    V.print();
+
+
+    //for(int p = 0; p < nmo; p++) {
+    //    for(int q = 0; q < nmo; q++) {
+    //        for(int r = 0; r < nmo; r++) {
+    //            for(int s = 0; s < nmo; s++) {
+    //                int x = nmo*p + q; 
+    //                int y = nmo*r + s;
+    //                std::cout << psi4TEI->get(x,y) << std::endl;
+    //            }
+    //        }
+    //    }
+    //}
+
+    ambit::finalize();
     return ref_wfn;
 }
 
