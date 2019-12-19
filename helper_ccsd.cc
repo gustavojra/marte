@@ -66,15 +66,15 @@ Tensor build_D1(Tensor& T1, Tensor& Vovov) {
 }
 
 Tensor build_D2p(Tensor& tau, Tensor& Vovov) {
-    size_t v = tau.dims()[2];
-    Tensor D2p = Tensor::build(TensorType::CoreTensor, "Intermediate D2' array", {v,v,v,v});
+    size_t o = tau.dims()[0];
+    Tensor D2p = Tensor::build(TensorType::CoreTensor, "Intermediate D2' array", {o,o,o,o});
     D2p("uvij") = Vovov("iajb")*tau("uvab");
     return D2p;
 }
 
 Tensor build_D2ps(Tensor& tau, Tensor& Vovov) {
-    size_t o = tau.dims()[0];
-    Tensor D2ps = Tensor::build(TensorType::CoreTensor, "Intermediate D2*' array", {o,o,o,o});
+    size_t v = tau.dims()[2];
+    Tensor D2ps = Tensor::build(TensorType::CoreTensor, "Intermediate D2*' array", {v,v,v,v});
     D2ps("acpb") = Vovov("iajc")*tau("ijpb");
     return D2ps;
 }
@@ -181,11 +181,20 @@ Tensor build_F2p(Tensor& tau, Tensor& Vovvv) {
     return F2p;
 }
 
+Tensor build_giu(Tensor& E1, Tensor& D2p, size_t o, size_t v) {
+    Tensor giu = Tensor::build(TensorType::CoreTensor, "Intermediate g(iu) array", {o,v});
+    Tensor X = Tensor::build(TensorType::CoreTensor, "Holding values", {o,o,o,o});
+    X("pqrs") = 2*(E1("pqrs") + D2p("pqrs"));
+    X("pqrs") -= X("pqsr");
+    giu("ui") = X("ujij");
+    return giu;
+}
+
 std::vector<double> cc_iterate(Tensor& T1, Tensor& T2, Tensor& auxD1, Tensor& auxD2, double& Ecc) {
-    std::vector<double> = out;
+    std::vector<double> out;
     Tensor T1new = Tensor::build(TensorType::CoreTensor, "Updated T1 amplitudes", T1.dims());
     Tensor T2new = Tensor::build(TensorType::CoreTensor, "Updated T2 amplitudes", T2.dims());
-    
+
     return out;
 }
     
