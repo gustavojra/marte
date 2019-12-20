@@ -70,5 +70,5 @@ psi4.driver.procedures['energy']['marte'] = run_marte
 
 def exampleFN():
     # Your Python code goes here
-    print("Python marte")
+    print("ALL GOOD")
     pass

@@ -19,6 +19,13 @@ Tensor build_tau(Tensor& T1, Tensor& T2) {
     tau("ijab") += T2("ijab");
     return tau;
 }
+
+Tensor build_Te(Tensor& T1, Tensor& T2) {
+    Tensor Te = Tensor::build(TensorType::CoreTensor, "Intermediate Te array", T2.dims());
+    Te("ijab") = T1("ia")*T1("jb");
+    Te("ijab") += T2("ijab");
+    return tau;
+}
     
 Tensor build_A2p(Tensor& tau, Tensor& Voooo) {
     Tensor A2p = Tensor::build(TensorType::CoreTensor, "Intermediate A2' array", tau.dims());
@@ -182,12 +189,33 @@ Tensor build_F2p(Tensor& tau, Tensor& Vovvv) {
 }
 
 Tensor build_giu(Tensor& E1, Tensor& D2p, size_t o, size_t v) {
-    Tensor giu = Tensor::build(TensorType::CoreTensor, "Intermediate g(iu) array", {o,v});
-    Tensor X = Tensor::build(TensorType::CoreTensor, "Holding values", {o,o,o,o});
-    X("pqrs") = 2*(E1("pqrs") + D2p("pqrs"));
-    X("pqrs") -= X("pqsr");
-    giu("ui") = X("ujij");
+    Tensor giu = Tensor::build(TensorType::CoreTensor, "Intermediate g(iu) array", {o,o});
+    Tensor X = Tensor::build(TensorType::CoreTensor, "X Holding values", {o,o,o,o});
+    Tensor Y = Tensor::build(TensorType::CoreTensor, "Y Holding values", {o,o,o,o});
+    Y("pqrs") = E1("pqrs") + D2p("pqrs");
+    X("pqrs") = 2*Y("pqrs") - Y("pqsr");
+    Y.set(0);
+    // Can this step be replaced? Contraction of type X('ujij') -> X('ui')
+    Y.iterate([](const std::vector<size_t>& indices, double& value) {
+        if(indices[1] == indices[3]){value = 1.0;};
+    });
+    giu("ui") = X("udij")*Y("udij");
     return giu;
+}
+
+Tensor build_gap(Tensor& F1s, Tensor& D2ps, size_t o, size_t v) {
+    Tensor gap = Tensor::build(TensorType::CoreTensor, "Intermediate g(ap) array", {v,v});
+    Tensor X = Tensor::build(TensorType::CoreTensor, "X Holding values", {v,v,v,v});
+    Tensor Y = Tensor::build(TensorType::CoreTensor, "Y Holding values", {v,v,v,v});
+    Y("pqrs") = F1s("pqrs") - D2ps("pqrs");
+    X("pqrs") = 2*Y("pqrs") - Y("qprs");
+    Y.set(0);
+    // Can this step be replaced? Contraction of type X('ujij') -> X('ui')
+    Y.iterate([](const std::vector<size_t>& indices, double& value) {
+        if(indices[1] == indices[3]){value = 1.0;};
+    });
+    gap("ap") = X("abpc")*Y("abpc");
+    return gap;
 }
 
 std::vector<double> cc_iterate(Tensor& T1, Tensor& T2, Tensor& auxD1, Tensor& auxD2, double& Ecc) {

@@ -49,4 +49,6 @@ ambit::Tensor build_F2p(ambit::Tensor& tau, ambit::Tensor& Vovvv);
 
 ambit::Tensor build_giu(ambit::Tensor& E1, ambit::Tensor& D2p, size_t o, size_t v);
 
+ambit::Tensor build_gap(ambit::Tensor& F1s, ambit::Tensor& D2ps, size_t o, size_t v);
+
 std::vector<double> cc_iterate(ambit::Tensor& T1, ambit::Tensor& T2, double& Ecc);

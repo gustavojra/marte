@@ -212,9 +212,10 @@ SharedWavefunction marte(SharedWavefunction ref_wfn, Options& options)
 
     std::cout << "CC MP2 Energy: " << Ecc << std::endl;
 
-    ambit::Tensor E1 = build_E1(T1, Vooov);
-    ambit::Tensor D2p = build_D2p(T2, Vovov);
-    ambit::Tensor giu = build_giu(E1, D2p, s_o, s_v);
+    ambit::Tensor F1s = build_F1s(T1, Vovvv);
+    ambit::Tensor D2ps = build_D2ps(T2, Vovov);
+    ambit::Tensor gap = build_gap(F1s, D2ps, s_o, s_v);
+    gap.print();
 
     ambit::finalize();
     return ref_wfn;
