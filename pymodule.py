@@ -30,6 +30,7 @@
 
 import psi4
 import psi4.driver.p4util as p4util
+import time
 from psi4.driver.procrouting import proc_util
 
 def run_marte(name, **kwargs):
@@ -42,6 +43,7 @@ def run_marte(name, **kwargs):
 
     lowername = name.lower()
     kwargs = p4util.kwargs_lower(kwargs)
+    tinit = time.time();
 
     # Your plugin's psi4 run sequence goes here
     psi4.core.set_local_option('MYPLUGIN', 'PRINT', 1)
@@ -61,6 +63,7 @@ def run_marte(name, **kwargs):
     psi4.core.print_out('MARTE STARTED')
     marte_wfn = psi4.core.plugin('marte.so', ref_wfn)
 
+    print("Total Computation time:        {}".format(time.time() - tinit))
     return marte_wfn
 
 

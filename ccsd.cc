@@ -43,8 +43,8 @@
 #include "psi4/libmints/mintshelper.h"
 #include "ambit/tensor.h"
 #include "ambit/blocked_tensor.h"
-#include "ambit/helpers/psi4/convert.h"
 #include <vector>
+#include <math.h>
 
 namespace psi{ namespace marte{
  
@@ -212,10 +212,33 @@ SharedWavefunction marte(SharedWavefunction ref_wfn, Options& options)
 
     std::cout << "CC MP2 Energy: " << Ecc << std::endl;
 
-    ambit::Tensor F1s = build_F1s(T1, Vovvv);
-    ambit::Tensor D2ps = build_D2ps(T2, Vovov);
-    ambit::Tensor gap = build_gap(F1s, D2ps, s_o, s_v);
-    gap.print();
+// Start iterations
+    double max_dE = pow(10,-8);
+    double max_dT = pow(10,-8);
+    double dE = 1;
+    double dT = 1;
+    int ite = 1;
+    int max_ite = 20;
+
+    std::cout << "Max Energy change:    " << max_dE << std::endl;
+    std::cout << "Max Amplitude change: " << max_dT << std::endl;
+
+    while(abs(dE) > max_dE || abs(dT) > max_dT) {
+        if(ite > max_ite) {
+            break;
+        }
+        std::cout << "==========================================" << std::endl;
+        std::cout << "Iteration          " << ite << std::endl;
+        std::vector<double> ite_out = cc_iterate(T1, T2, D1, D2, Ecc, Voooo, Vvvvv, Vooov, Voovv, Vovov, Vovvv);
+        std::cout << "CC Energy:         " << Ecc << std::endl;
+        std::cout << "CC Energy change:  " << ite_out[0] << std::endl;
+        std::cout << "T1 residue:        " << ite_out[1] << std::endl;
+        std::cout << "T2 residue:        " << ite_out[2] << std::endl;
+        std::cout << "==========================================" << std::endl;
+        dE = ite_out[0]; 
+        dT = std::max(ite_out[1], ite_out[2]);
+        ite++;
+    }
 
     ambit::finalize();
     return ref_wfn;

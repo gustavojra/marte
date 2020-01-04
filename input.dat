@@ -15,7 +15,7 @@ symmetry c1
 }
 
 set {
-  basis sto-3g
+  basis cc-pvtz
 }
 
 set marte {
